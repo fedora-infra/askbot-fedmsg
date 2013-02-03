@@ -15,7 +15,7 @@ f.close()
 
 setup(
     name='askbot-fedmsg',
-    version='0.0.1',
+    version='0.0.2',
     description="Askbot plugin for emitting events to the Fedora message bus",
     long_description=long_description,
     author='Ralph Bean',
