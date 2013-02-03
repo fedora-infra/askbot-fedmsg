@@ -17,6 +17,22 @@
 #
 # Authors:  Ralph Bean <rbean@redhat.com>
 #
+""" Plugin to emit fedmsg messages from an askbot instance.
+
+Enable this plugin by editing the ``settings.py`` file in your askbot
+instance.
+
+Find MIDDLEWARE_CLASSES and add 'askbot_fedmsg_plugin.NOOPMiddleware'
+to the tuple like:
+
+    MIDDLEWARE_CLASSES = (
+        ...
+        'askbot_fedmsg_plugin.NOOPMiddleware',
+        ...
+    )
+
+"""
+
 
 import fedmsg
 import functools
@@ -43,40 +59,38 @@ from askbot.models.signals import (
     site_visited,
 )
 
-def fedmsg_callback(sender, topic=None, **kwargs):
+
+def mangle_kwargs(kwargs):
+    """ Take kwargs as given to us by askbot and turn them into something that
+    more closely resembles messages on the fedmsg bus.
+
+    JSONify some django models.
+    """
+
     if 'signal' in kwargs:
         del kwargs['signal']
 
-    import warnings
-    import pprint
-    kwargs['topic'] = topic
-    warnings.warn(pprint.pformat(kwargs))
-
-    if 'user' in kwargs:
-        kwargs['agent'] = kwargs['user'].username
-        del kwargs['user']
+    user_keys = ['user', 'mark_by', 'delete_by', 'updated_by']
+    for key in user_keys:
+        if key in kwargs:
+            kwargs['agent'] = kwargs[key].username
+            del kwargs[key]
 
     if 'newly_mentioned_users' in kwargs:
         kwargs['newly_mentioned_users'] = [
             user.username for user in list(kwargs['newly_mentioned_users'])]
 
-    if 'updated_by' in kwargs:
-        kwargs['agent'] = kwargs['updated_by'].username
-        del kwargs['updated_by']
-
-    if 'delete_by' in kwargs:
-        kwargs['agent'] = kwargs['delete_by'].username
-        del kwargs['delete_by']
-
     if 'revision' in kwargs:
         kwargs['agent'] = kwargs['revision'].author.username
-        print kwargs['revision'].post
         kwargs['revision'] = dict(
             (key, getattr(kwargs['revision'], key)) for key in (
                 'tagnames', 'text', 'title', 'summary', 'pk',
             ))
+        kwargs['revision']['tagnames'] = \
+            kwargs['revision']['tagnames'].split(' ')
 
     if 'post' in kwargs:
+        kwargs['thread'] = kwargs['post'].thread
         kwargs['post'] = dict(
             (key, getattr(kwargs['post'], key)) for key in (
                 'text', 'summary',
@@ -91,25 +105,37 @@ def fedmsg_callback(sender, topic=None, **kwargs):
                 'post_type', 'comment_count',
                 'vote_up_count', 'vote_down_count', 'pk',
             ))
-        #warnings.warn(serializers.serialize('json', [kwargs['post']], indent=2, use_natural_keys=True))
 
-    warnings.warn(pprint.pformat(kwargs))
+    if 'thread' in kwargs:
+        kwargs['thread'] = dict(
+            (key, getattr(kwargs['thread'], key)) for key in (
+                'tagnames', 'title', 'pk',
+            ))
+        kwargs['thread']['tagnames'] = \
+            kwargs['thread']['tagnames'].split(' ')
+
+    if 'tags' in kwargs:
+        kwargs['tags'] = [tag.name for tag in kwargs['tags']]
+
+
+def fedmsg_callback(sender, topic=None, **kwargs):
+    kwargs = mangle_kwargs(kwargs)
     fedmsg.publish(topic=topic, modname="askbot", msg=kwargs)
 
+# Here is where we actually hook our callback up to askbot signals system
 signals = {
     'tag.update': tags_updated,
     'post.edit': edit_question_or_answer,
-    'post.delete': delete_question_or_answer,           # handled
+    'post.delete': delete_question_or_answer,
     'post.flag_offensive.add': flag_offensive,
     'post.flag_offensive.delete': remove_flag_offensive,
-    'user.update': user_updated,
-    'user.new': user_registered,
+    #'user.update': user_updated,
+    #'user.new': user_registered,
     'post.edit': post_updated,
-    'post.revision.publish': post_revision_published,
+    #'post.revision.publish': post_revision_published,
     #'site.visit': site_visited,
 }
 for topic, signal in signals.items():
-    print topic, "->", signal
     signal.connect(functools.partial(fedmsg_callback, topic=topic), weak=False)
 
 
