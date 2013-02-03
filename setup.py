@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 try:
-    from setuptools import setup, find_packages
+    from setuptools import setup
 except ImportError:
     from ez_setup import use_setuptools
     use_setuptools()
-    from setuptools import setup, find_packages
+    from setuptools import setup
 
 import sys
 
@@ -14,7 +14,7 @@ long_description = f.read().strip()
 f.close()
 
 setup(
-    name='askbot-fedmsg',
+    name='askbot-fedmsg-plugin',
     version='0.0.1',
     description="Askbot plugin for emitting events to the Fedora message bus",
     long_description=long_description,
@@ -30,7 +30,11 @@ setup(
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
     ],
-    packages=['askbot_fedmsg_plugin'],
+    py_modules=['askbot_fedmsg_plugin'],
+    install_requires=[
+        'fedmsg',
+        'askbot',
+    ],
     include_package_data=True,
     zip_safe=False,
 )
