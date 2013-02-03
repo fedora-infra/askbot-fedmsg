@@ -14,8 +14,8 @@ long_description = f.read().strip()
 f.close()
 
 setup(
-    name='askbot-fedmsg-plugin',
-    version='0.0.1',
+    name='askbot-fedmsg',
+    version='0.0.2',
     description="Askbot plugin for emitting events to the Fedora message bus",
     long_description=long_description,
     author='Ralph Bean',
@@ -30,7 +30,7 @@ setup(
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
     ],
-    py_modules=['askbot_fedmsg_plugin'],
+    py_modules=['askbot_fedmsg'],
     install_requires=[
         'fedmsg',
         'askbot',

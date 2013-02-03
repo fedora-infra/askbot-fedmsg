@@ -1,3 +1,3 @@
-A Supybot plugin for sending messages across the Fedora Infrastructure message
-bus.  This plugin modifies other installed plugins during runtime, instrumenting
-them to send messages on certain events.
+A askbot plugin for sending messages across the Fedora Infrastructure message
+bus.  This plugin hooks itself up to django signals sent by askbot and simply
+republishes information to the fedmsg bus.
