@@ -1,4 +1,4 @@
-# This file is part of askbot_fedmsg_plugin.
+# This file is part of askbot_fedmsg.
 # Copyright (C) 2013 Red Hat, Inc.
 #
 # fedmsg is free software; you can redistribute it and/or
@@ -22,12 +22,12 @@
 Enable this plugin by editing the ``settings.py`` file in your askbot
 instance.
 
-Find MIDDLEWARE_CLASSES and add 'askbot_fedmsg_plugin.NOOPMiddleware'
+Find MIDDLEWARE_CLASSES and add 'askbot_fedmsg.NOOPMiddleware'
 to the tuple like:
 
     MIDDLEWARE_CLASSES = (
         ...
-        'askbot_fedmsg_plugin.NOOPMiddleware',
+        'askbot_fedmsg.NOOPMiddleware',
         ...
     )
 
