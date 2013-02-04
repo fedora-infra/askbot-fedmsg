@@ -99,6 +99,7 @@ def mangle_kwargs(kwargs):
             ))
 
     if 'instance' in kwargs:
+        kwargs['thread'] = kwargs['instance'].thread
         kwargs['instance'] = dict(
             (key, getattr(kwargs['instance'], key)) for key in (
                 'text', 'summary',
@@ -107,6 +108,7 @@ def mangle_kwargs(kwargs):
             ))
 
     if 'thread' in kwargs:
+        kwargs['topmost_post_id'] = kwargs['thread']._question_post().pk
         kwargs['thread'] = dict(
             (key, getattr(kwargs['thread'], key)) for key in (
                 'tagnames', 'title', 'pk',
