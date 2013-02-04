@@ -117,6 +117,7 @@ def mangle_kwargs(kwargs):
     if 'tags' in kwargs:
         kwargs['tags'] = [tag.name for tag in kwargs['tags']]
 
+    return kwargs
 
 def fedmsg_callback(sender, topic=None, **kwargs):
     kwargs = mangle_kwargs(kwargs)
