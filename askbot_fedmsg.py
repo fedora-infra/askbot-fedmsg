@@ -38,7 +38,8 @@ import fedmsg
 import functools
 import socket
 
-fedmsg.init(name="askbot.%s" % socket.gethostname())
+hostname = socket.gethostname().split('.')[0]
+fedmsg.init(name="askbot.%s" % hostname)
 
 from django.core import serializers
 import json
