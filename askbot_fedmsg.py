@@ -60,6 +60,22 @@ from askbot.models.signals import (
     site_visited,
 )
 
+from askbot.deps import django_authopenid
+
+
+def username(user):
+    """ Return the user's username...  *unless* that user logged in via FAS
+    openid, in which case the FAS username is returned.
+    """
+    assocs = django_authopenid.models.UserAssociation.objects.filter(user=user)
+    for association in assocs:
+        url = association.openid_url
+        if 'id.fedoraproject.org' in url:
+            return url.split('://')[1].split('.')[0]
+
+    # Otherwise
+    return user.username
+
 
 def mangle_kwargs(kwargs):
     """ Take kwargs as given to us by askbot and turn them into something that
@@ -74,15 +90,15 @@ def mangle_kwargs(kwargs):
     user_keys = ['user', 'mark_by', 'delete_by', 'updated_by']
     for key in user_keys:
         if key in kwargs:
-            kwargs['agent'] = kwargs[key].username
+            kwargs['agent'] = username(kwargs[key])
             del kwargs[key]
 
     if 'newly_mentioned_users' in kwargs:
         kwargs['newly_mentioned_users'] = [
-            user.username for user in list(kwargs['newly_mentioned_users'])]
+            username(user) for user in list(kwargs['newly_mentioned_users'])]
 
     if 'revision' in kwargs:
-        kwargs['agent'] = kwargs['revision'].author.username
+        kwargs['agent'] = username(kwargs['revision'].author)
         kwargs['revision'] = dict(
             (key, getattr(kwargs['revision'], key)) for key in (
                 'tagnames', 'text', 'title', 'summary', 'pk',
@@ -121,6 +137,7 @@ def mangle_kwargs(kwargs):
         kwargs['tags'] = [tag.name for tag in kwargs['tags']]
 
     return kwargs
+
 
 def fedmsg_callback(sender, topic=None, **kwargs):
     kwargs = mangle_kwargs(kwargs)
