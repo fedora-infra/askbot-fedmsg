@@ -138,6 +138,7 @@ def mangle_kwargs(kwargs):
 
     return kwargs
 
+
 def fedmsg_callback(sender, topic=None, **kwargs):
     kwargs = mangle_kwargs(kwargs)
     fedmsg.publish(topic=topic, modname="askbot", msg=kwargs)
