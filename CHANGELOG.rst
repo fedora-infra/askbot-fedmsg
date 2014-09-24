@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.1.1
+-----
+
+- Include language_code in fedmsg messages. `59cebf165 <https://github.com/fedora-infra/askbot-fedmsg/commit/59cebf16569bbbac690f0509a4e5d8da3cd9ecbc>`_
+- Merge pull request #4 from fedora-infra/feature/l10n `27b0b3a9e <https://github.com/fedora-infra/askbot-fedmsg/commit/27b0b3a9ee3ec4c35a602c38645cf7354bcdd417>`_
+
 0.1.0
 -----
 
