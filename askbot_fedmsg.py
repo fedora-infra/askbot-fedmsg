@@ -113,6 +113,7 @@ def mangle_kwargs(kwargs):
                 'text', 'summary',
                 'post_type', 'comment_count',
                 'vote_up_count', 'vote_down_count', 'pk',
+                'language_code',
             ))
 
     if 'instance' in kwargs:
@@ -122,6 +123,7 @@ def mangle_kwargs(kwargs):
                 'text', 'summary',
                 'post_type', 'comment_count',
                 'vote_up_count', 'vote_down_count', 'pk',
+                'language_code',
             ))
 
     if 'thread' in kwargs:
@@ -129,6 +131,7 @@ def mangle_kwargs(kwargs):
         kwargs['thread'] = dict(
             (key, getattr(kwargs['thread'], key)) for key in (
                 'tagnames', 'title', 'pk',
+                'language_code'
             ))
         kwargs['thread']['tagnames'] = \
             kwargs['thread']['tagnames'].split(' ')
